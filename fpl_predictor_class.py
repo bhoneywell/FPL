@@ -49,6 +49,7 @@ class fpl_predictor:
         #print(self.df.head())
         
     def player_selected(self,playerName):
+        
         print(playerName)
         print(len(playerName))
         playerName.strip()
@@ -62,15 +63,45 @@ class fpl_predictor:
         lm = LinearRegression()
         lm.fit(X_train,y_train)
 
-        intercept = (lm.intercept_)
+        self.kickVar = StringVar()
+        self.opponentVar = StringVar()
+        self.gwVar = StringVar()
+
+
+        self.intercept = (lm.intercept_)
         coeff_df = pd.DataFrame(lm.coef_,X.columns,columns=['Coefficient'])
         print(coeff_df)
-        kickoff_coeff = coeff_df.loc['kickoff_hour','Coefficient']
-        team_coeff = coeff_df.loc['opponent_team','Coefficient']
-        gw_coeff = coeff_df.loc['GW','Coefficient']
-        eqn = "points = {}kickoff_hour + {}opponent_team + {}GW + {}".format(kickoff_coeff,team_coeff,gw_coeff,intercept)
-        print(eqn)
-        #equationLabel = Label(self.win, text = )
+        self.kickoff_coeff = coeff_df.loc['kickoff_hour','Coefficient']
+        self.team_coeff = coeff_df.loc['opponent_team','Coefficient']
+        self.gw_coeff = coeff_df.loc['GW','Coefficient']
+        self.eqn = "points = {}kickoff_hour + {}opponent_team + {}GW + {}".format(self.kickoff_coeff,self.team_coeff,self.gw_coeff,self.intercept)
+        #print(eqn)
+        equationLabel = Label(self.win, text = self.eqn )
+        equationLabel.grid(row=2,column=0, columnspan = 3)
+        kickoffLabel = Label(self.win, text = "kickoff time:" )
+        kickoffLabel.grid(row=3, column=0)    
+        kickoffEntry = Entry(self.win, textvariable=self.kickVar)
+        kickoffEntry.grid(row=3, column=1)
+        opponentLabel = Label(self.win, text = "Opponent:" )
+        opponentLabel.grid(row=4, column=0)   
+        opponentEntry = Entry(self.win, textvariable=self.opponentVar)
+        opponentEntry.grid(row=4, column=1)
+        gwLabel = Label(self.win, text = "GW:" )
+        gwLabel.grid(row=5, column=0)
+        gwEntry = Entry(self.win, textvariable=self.gwVar)
+        gwEntry.grid(row=5, column=1)
+        calculateButton = Button(self.win, text= "Calculate", command = self.calculate_score)
+        calculateButton.grid(row=6, column=1, columnspan=2)
+        
+        
+    def calculate_score(self):
+        kickoff = self.kickVar.get()
+        opponent = self.opponentVar.get()
+        gw = self.gwVar.get()
+        print(kickoff)
+        expected_points = self.kickoff_coeff*int(kickoff)+self.team_coeff*int(opponent)+self.gw_coeff*int(gw)+self.intercept
+        pointsLabel = Label(self.win, text = str(expected_points))
+        pointsLabel.grid(row=7, column =1, columnspan=3)
         
         
         

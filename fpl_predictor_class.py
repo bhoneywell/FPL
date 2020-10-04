@@ -6,7 +6,6 @@ Created on Tue Aug 11 19:56:18 2020
 @author: wellhoneyb
 """
 
-
 from tkinter import *
 import tkinter as tk
 import pandas as pd
@@ -15,8 +14,17 @@ from sklearn.linear_model import LinearRegression
 from datetime import datetime
 import re
 
+team_dict = {'Arsenal FC':1, 'Aston Villa':2, 'AFC Bournemouth':3, 'Brighton Hove & Albion':4,
+'Burnley':5, 'Chelsea FC':6, 'Crystal Palace':7, 'Everton FC':8, 'Leicester City':9,
+'Liverpool FC':10, 'Manchester City':11,'Manchester United':12, 'Newcastle United':13,
+'Norwich City':14,'Sheffield United':15,'Southampton FC':16,'Tottenham Hotspur':17,
+'Watford FC':18,'West Ham United':19,'Wolverhampton Wanderers':20}
+opponentList = list(team_dict.keys())
+
+
 url = 'https://raw.githubusercontent.com/vaastav/Fantasy-Premier-League/master/data/2019-20/gws/merged_gw.csv'
 df = pd.read_csv(url)
+
 
 class fpl_predictor:
     def __init__(self,master):
@@ -66,6 +74,7 @@ class fpl_predictor:
         self.kickVar = StringVar()
         self.opponentVar = StringVar()
         self.gwVar = StringVar()
+        self.opponentVar.set(opponentList[0])
 
 
         self.intercept = (lm.intercept_)
@@ -83,9 +92,11 @@ class fpl_predictor:
         kickoffEntry = Entry(self.win, textvariable=self.kickVar)
         kickoffEntry.grid(row=3, column=1)
         opponentLabel = Label(self.win, text = "Opponent:" )
-        opponentLabel.grid(row=4, column=0)   
-        opponentEntry = Entry(self.win, textvariable=self.opponentVar)
-        opponentEntry.grid(row=4, column=1)
+        opponentLabel.grid(row=4, column=0)  
+        opponentDropdown = tk.OptionMenu(self.win, self.opponentVar, *opponentList)
+        opponentDropdown.grid(row=4, column=1)
+        #opponentEntry = Entry(self.win, textvariable=self.opponentVar)
+        #opponentEntry.grid(row=4, column=1)
         gwLabel = Label(self.win, text = "GW:" )
         gwLabel.grid(row=5, column=0)
         gwEntry = Entry(self.win, textvariable=self.gwVar)
@@ -96,8 +107,10 @@ class fpl_predictor:
         
     def calculate_score(self):
         kickoff = self.kickVar.get()
-        opponent = self.opponentVar.get()
+        opponentName = self.opponentVar.get()
         gw = self.gwVar.get()
+        opponent = team_dict[opponentName]
+       
         print(kickoff)
         expected_points = self.kickoff_coeff*int(kickoff)+self.team_coeff*int(opponent)+self.gw_coeff*int(gw)+self.intercept
         pointsLabel = Label(self.win, text = str(expected_points))
